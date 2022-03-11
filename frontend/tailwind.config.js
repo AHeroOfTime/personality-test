@@ -7,6 +7,7 @@ module.exports = {
     extend: {
       backgroundImage: {
         'page-background-mobile': "url('/img/bg.jpg')",
+        'page-background-desktop': "url('/img/bg--desktop.jpg')",
         'checkbox-checked': "url('/img/checkbox--checked.svg')",
         'checkbox-unchecked': "url('/img/checkbox--unchecked.svg')",
       },
@@ -16,6 +17,12 @@ module.exports = {
       colors: {
         primary: '#E9C376',
         secondary: '#DFB8AC',
+      },
+      height: {
+        18: '4.5rem',
+      },
+      width: {
+        18: '4.5rem',
       },
     },
 
