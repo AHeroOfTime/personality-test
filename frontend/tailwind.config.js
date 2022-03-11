@@ -18,6 +18,9 @@ module.exports = {
         primary: '#E9C376',
         secondary: '#DFB8AC',
       },
+      fontSize: {
+        '10xl': '10rem',
+      },
       height: {
         18: '4.5rem',
       },
