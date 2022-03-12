@@ -44,5 +44,12 @@ export default withAuth(
     },
     lists,
     session,
+    // Reference: https://keystonejs.com/releases/2021-11-02#cors-configuration
+    server: {
+      cors: {
+        origin: ['http://localhost:5000', 'http://studio.apollographql.com'],
+        credentials: true,
+      },
+    },
   }),
 );

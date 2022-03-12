@@ -2,8 +2,22 @@ import { Page } from '../components/Page';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Diagram } from '../components/Diagram';
+import { gql, useQuery } from '@apollo/client';
+
+const TYPES_QUERY = gql`
+  query TYPES_QUERY {
+    types {
+      id
+      type
+      subheading
+    }
+  }
+`;
 
 export default function Result() {
+  const { data, loading, error } = useQuery(TYPES_QUERY);
+  console.log(data);
+
   return (
     <Page>
       <div className="box">
