@@ -59,8 +59,9 @@ export const lists: Lists = {
     },
     // Here we can configure the Admin UI. We want to show a user's name and posts in the Admin UI
     ui: {
+      labelField: 'name',
       listView: {
-        initialColumns: ['name'],
+        initialColumns: ['name', 'email'],
       },
     },
   }),
@@ -71,6 +72,12 @@ export const lists: Lists = {
       type: relationship({ ref: 'Type.question' }),
       answer: relationship({ ref: 'Answer.question', many: true }),
     },
+    ui: {
+      labelField: 'question',
+      listView: {
+        initialColumns: ['question'],
+      },
+    },
   }),
   // ======== TYPE ========
   Type: list({
@@ -80,6 +87,12 @@ export const lists: Lists = {
       description: text({ ui: { displayMode: 'textarea' } }),
       question: relationship({ ref: 'Question.type', many: true }),
     },
+    ui: {
+      labelField: 'type',
+      listView: {
+        initialColumns: ['type', 'subheading'],
+      },
+    },
   }),
   // ======== ANSWERS ========
   Answer: list({
@@ -87,6 +100,12 @@ export const lists: Lists = {
       answer: integer({ validation: { isRequired: true } }),
       user: relationship({ ref: 'User.answer', many: true }),
       question: relationship({ ref: 'Question.answer' }),
+    },
+    ui: {
+      labelField: 'answer',
+      listView: {
+        initialColumns: ['answer', 'user', 'question'],
+      },
     },
   }),
 };

@@ -7,6 +7,11 @@ You can find all the config options in our docs here: https://keystonejs.com/doc
 */
 
 import { config } from '@keystone-6/core';
+// from apollo docs as well
+// import {
+//   ApolloServerPluginLandingPageGraphQLPlayground,
+//   ApolloServerPluginLandingPageDisabled,
+// } from 'apollo-server-core';
 
 // Look in the schema file for how we define our lists, and how users interact with them through graphql or the Admin UI
 import { lists } from './schema';
@@ -22,6 +27,16 @@ export default withAuth(
       provider: 'sqlite',
       url: 'file:./keystone.db',
     },
+    // added for graphql/apollo playground. copied from docs: https://www.apollographql.com/docs/apollo-server/migration/#graphql-playground
+    // graphql: {
+    //   apolloConfig: {
+    //     plugins: [
+    //       process.env.NODE_ENV === 'production'
+    //         ? ApolloServerPluginLandingPageDisabled()
+    //         : ApolloServerPluginLandingPageGraphQLPlayground(),
+    //     ],
+    //   },
+    // },
     // This config allows us to set up features of the Admin UI https://keystonejs.com/docs/apis/config#ui
     ui: {
       // For our starter, we check that someone has session data before letting them see the Admin UI.
@@ -29,5 +44,5 @@ export default withAuth(
     },
     lists,
     session,
-  })
+  }),
 );
