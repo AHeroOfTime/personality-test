@@ -1,9 +1,28 @@
 import React from 'react';
 import Link from 'next/link';
 import { Page } from '../components/Page';
+import { useForm } from 'react-hook-form';
 
 // nextjs wont let you use named exports for pages
 const Home = () => {
+  // Reference: https://react-hook-form.com/get-started/
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+  const onSubmit = (data) => console.log(data);
+
+  // create the user
+  const signupUser = (data) => {};
+
+  // if they were successfully created
+  // authenticate them, using the credentials they provided
+  const authenticateUser = (data) => {
+    // if successful, then send the user to the directions page
+  };
+
   return (
     <Page>
       {/* box */}
@@ -21,24 +40,52 @@ const Home = () => {
         <form
           action=""
           className="relative pb-12 lg:pb-0 lg:grid grid-cols-3 gap-4"
+          onSubmit={handleSubmit(onSubmit)}
         >
           <div>
             <label htmlFor="name">First Name</label>
-            <input type="text" name="name" />
+            <input
+              type="text"
+              name="name"
+              {...register('name', { required: true })}
+            />
+            {errors.name && <div className="error">The name is required</div>}
           </div>
 
           <div>
             <label htmlFor="email">Email Address</label>
-            <input type="email" name="email" />
+            <input
+              type="email"
+              name="email"
+              {...register('email', { required: true })}
+            />
+            {errors.email && (
+              <div className="error">The email address field is required</div>
+            )}
           </div>
 
           <div>
             <label htmlFor="passsword">Password</label>
-            <input type="password" name="passeword" />
+            <input
+              type="password"
+              name="password"
+              {...register('password', { required: true })}
+            />
+            {errors.password && (
+              <div className="error">The password is required</div>
+            )}
           </div>
 
           <div className="cols-span-3">
-            <input type="checkbox" name="terms" id="terms" />
+            <input
+              type="checkbox"
+              name="terms"
+              id="terms"
+              {...register('terms', { required: true })}
+            />
+            {errors.terms && (
+              <div className="error">Please accept our terms to continue</div>
+            )}
             <label htmlFor="terms">
               I agree to your{' '}
               <Link href="/terms-and-conditions">
