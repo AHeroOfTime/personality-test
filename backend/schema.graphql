@@ -6,7 +6,13 @@ type User {
   name: String
   email: String
   password: PasswordState
-  answer: Answer
+  answer(
+    where: AnswerWhereInput! = {}
+    orderBy: [AnswerOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [Answer!]
+  answerCount(where: AnswerWhereInput! = {}): Int
 }
 
 type PasswordState {
@@ -25,7 +31,7 @@ input UserWhereInput {
   id: IDFilter
   name: StringFilter
   email: StringFilter
-  answer: AnswerWhereInput
+  answer: AnswerManyRelationFilter
 }
 
 input IDFilter {
@@ -67,6 +73,12 @@ input NestedStringFilter {
   not: NestedStringFilter
 }
 
+input AnswerManyRelationFilter {
+  every: AnswerWhereInput
+  some: AnswerWhereInput
+  none: AnswerWhereInput
+}
+
 input UserOrderByInput {
   id: OrderDirection
   name: OrderDirection
@@ -82,13 +94,14 @@ input UserUpdateInput {
   name: String
   email: String
   password: String
-  answer: AnswerRelateToOneForUpdateInput
+  answer: AnswerRelateToManyForUpdateInput
 }
 
-input AnswerRelateToOneForUpdateInput {
-  create: AnswerCreateInput
-  connect: AnswerWhereUniqueInput
-  disconnect: Boolean
+input AnswerRelateToManyForUpdateInput {
+  disconnect: [AnswerWhereUniqueInput!]
+  set: [AnswerWhereUniqueInput!]
+  create: [AnswerCreateInput!]
+  connect: [AnswerWhereUniqueInput!]
 }
 
 input UserUpdateArgs {
@@ -100,12 +113,12 @@ input UserCreateInput {
   name: String
   email: String
   password: String
-  answer: AnswerRelateToOneForCreateInput
+  answer: AnswerRelateToManyForCreateInput
 }
 
-input AnswerRelateToOneForCreateInput {
-  create: AnswerCreateInput
-  connect: AnswerWhereUniqueInput
+input AnswerRelateToManyForCreateInput {
+  create: [AnswerCreateInput!]
+  connect: [AnswerWhereUniqueInput!]
 }
 
 type Question {
@@ -135,12 +148,6 @@ input QuestionWhereInput {
   answer: AnswerManyRelationFilter
 }
 
-input AnswerManyRelationFilter {
-  every: AnswerWhereInput
-  some: AnswerWhereInput
-  none: AnswerWhereInput
-}
-
 input QuestionOrderByInput {
   id: OrderDirection
   question: OrderDirection
@@ -158,13 +165,6 @@ input TypeRelateToOneForUpdateInput {
   disconnect: Boolean
 }
 
-input AnswerRelateToManyForUpdateInput {
-  disconnect: [AnswerWhereUniqueInput!]
-  set: [AnswerWhereUniqueInput!]
-  create: [AnswerCreateInput!]
-  connect: [AnswerWhereUniqueInput!]
-}
-
 input QuestionUpdateArgs {
   where: QuestionWhereUniqueInput!
   data: QuestionUpdateInput!
@@ -179,11 +179,6 @@ input QuestionCreateInput {
 input TypeRelateToOneForCreateInput {
   create: TypeCreateInput
   connect: TypeWhereUniqueInput
-}
-
-input AnswerRelateToManyForCreateInput {
-  create: [AnswerCreateInput!]
-  connect: [AnswerWhereUniqueInput!]
 }
 
 type Type {
