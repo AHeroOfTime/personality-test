@@ -98,7 +98,7 @@ export const lists: Lists = {
   Answer: list({
     fields: {
       answer: integer({ validation: { isRequired: true } }),
-      user: relationship({ ref: 'User.answer', many: true }),
+      user: relationship({ ref: 'User.answer' }),
       question: relationship({ ref: 'Question.answer' }),
     },
     ui: {

@@ -1,10 +1,44 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Page } from '../components/Page';
 import { useForm } from 'react-hook-form';
+import { gql, useMutation } from '@apollo/client';
+import { useUser, AUTHENTICATE_USER_QUERY } from '../hooks/User';
+import { useRouter } from 'next/router';
+
+const CREATE_USER_MUTATION = gql`
+  mutation CREATE_USER_MUTATION($data: UserCreateInput!) {
+    createUser(data: $data) {
+      name
+      email
+      password {
+        isSet
+      }
+    }
+  }
+`;
+
+const AUTHENTICATE_USER_MUTATION = gql`
+  mutation AUTHENTICATE_USER_MUTATION($email: String!, $password: String!) {
+    authenticateUserWithPassword(email: $email, password: $password) {
+      ... on UserAuthenticationWithPasswordSuccess {
+        item {
+          name
+          id
+        }
+        sessionToken
+      }
+      ... on UserAuthenticationWithPasswordFailure {
+        message
+      }
+    }
+  }
+`;
 
 // nextjs wont let you use named exports for pages
 const Home = () => {
+  const [foundErrors, setFoundErrors] = useState(false);
+  const [submittingForm, setSubmittingForm] = useState(false);
   // Reference: https://react-hook-form.com/get-started/
   const {
     register,
@@ -12,15 +46,79 @@ const Home = () => {
     watch,
     formState: { errors },
   } = useForm();
-  const onSubmit = (data) => console.log(data);
+  const user = useUser();
+  const router = useRouter();
+
+  // check to see if the user has an existing session and has already been authenticated
+  // adding this here instead of onCompletion so that if the user comes, they can get where they need to go
+  useEffect(() => {
+    console.log('checking the user');
+    console.log(user);
+
+    if (user?.authenticatedItem?.id) {
+      // redirect to the directions page
+      router.push('/directions');
+    }
+  }, [user]);
+
+  // form has been submitted
+  const onSubmit = async (data) => {
+    setSubmittingForm(true); // freeze our form while submitting
+    await signupUser(data);
+    setSubmittingForm(false); // reenable the form
+    console.log(data);
+  };
+
+  const [createUser] = useMutation(CREATE_USER_MUTATION);
+  const [checkUsernamePassword] = useMutation(AUTHENTICATE_USER_MUTATION);
 
   // create the user
-  const signupUser = (data) => {};
+  const signupUser = async (data) => {
+    try {
+      await createUser({
+        variables: {
+          data: {
+            name: data.name,
+            email: data.email,
+            password: data.password,
+          },
+        },
+      });
+
+      await authenticateUser(data);
+    } catch {
+      // error handling
+      setFoundErrors(true);
+    }
+  };
 
   // if they were successfully created
   // authenticate them, using the credentials they provided
-  const authenticateUser = (data) => {
-    // if successful, then send the user to the directions page
+  const authenticateUser = async (data) => {
+    try {
+      const loggedInUser = await checkUsernamePassword({
+        variables: {
+          email: data.email,
+          password: data.password,
+        },
+      });
+
+      console.log(loggedInUser.data);
+
+      const token = loggedInUser.data.authenticateUserWithPassword.sessionToken;
+
+      // if successfully authenticated
+      if (token) {
+        // create an item in local storage w/ their session info
+        localStorage.setItem('ENNEAGRAM_SESSION', token);
+      } else {
+        setFoundErrors(true);
+      }
+      // if successful, then send the user to the directions page
+      router.push('/directions');
+    } catch {
+      setFoundErrors(true);
+    }
   };
 
   return (
@@ -36,64 +134,71 @@ const Home = () => {
           Create an Account
         </h2>
 
+        {foundErrors && <div className="error">Whoops! We found errors.</div>}
+
         {/* form */}
         <form
           action=""
-          className="relative pb-12 lg:pb-0 lg:grid grid-cols-3 gap-4"
           onSubmit={handleSubmit(onSubmit)}
+          className="relative pb-12 lg:pb-0"
         >
-          <div>
-            <label htmlFor="name">First Name</label>
-            <input
-              type="text"
-              name="name"
-              {...register('name', { required: true })}
-            />
-            {errors.name && <div className="error">The name is required</div>}
-          </div>
+          <fieldset
+            className="lg:grid grid-cols-3 gap-4"
+            disabled={submittingForm}
+          >
+            <div>
+              <label htmlFor="name">First Name</label>
+              <input
+                type="text"
+                name="name"
+                {...register('name', { required: true })}
+              />
+              {errors.name && <div className="error">The name is required</div>}
+            </div>
 
-          <div>
-            <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              {...register('email', { required: true })}
-            />
-            {errors.email && (
-              <div className="error">The email address field is required</div>
-            )}
-          </div>
+            <div>
+              <label htmlFor="email">Email Address</label>
+              <input
+                type="email"
+                name="email"
+                {...register('email', { required: true })}
+              />
+              {errors.email && (
+                <div className="error">The email address is required</div>
+              )}
+            </div>
 
-          <div>
-            <label htmlFor="passsword">Password</label>
-            <input
-              type="password"
-              name="password"
-              {...register('password', { required: true })}
-            />
-            {errors.password && (
-              <div className="error">The password is required</div>
-            )}
-          </div>
+            <div>
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                name="password"
+                {...register('password', { required: true })}
+              />
+              {errors.password && (
+                <div className="error">The password is required</div>
+              )}
+            </div>
 
-          <div className="cols-span-3">
-            <input
-              type="checkbox"
-              name="terms"
-              id="terms"
-              {...register('terms', { required: true })}
-            />
-            {errors.terms && (
-              <div className="error">Please accept our terms to continue</div>
-            )}
-            <label htmlFor="terms">
-              I agree to your{' '}
-              <Link href="/terms-and-conditions">
-                <a>terms and conditions</a>
-              </Link>
-              .
-            </label>
-          </div>
+            <div className="col-span-3">
+              <input
+                type="checkbox"
+                name="terms"
+                id="terms"
+                {...register('terms', { required: true })}
+              />
+              {errors.terms && (
+                <div className="error">Please accept our terms to continue</div>
+              )}
+              <label htmlFor="terms">
+                I agree to your{' '}
+                <Link href="/terms-and-conditions">
+                  <a>terms and conditions</a>
+                </Link>
+                .
+              </label>
+            </div>
+          </fieldset>
 
           <button
             type="submit"
