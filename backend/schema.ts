@@ -16,6 +16,8 @@ A field: The individual bits of data on your list, each with its own type.
 // for putting in our config so we get useful errors. With typescript,
 // we get these even before code runs.
 import { list } from '@keystone-6/core';
+// Reference: for updating access permssions - https://keystonejs.com/docs/apis/access-control#operation
+import { isLoggedIn, isUsersItem, isUserAdmin } from './access';
 
 // We're using some common fields in the starter. Check out https://keystonejs.com/docs/apis/fields#fields-api
 // for the full list of fields.
@@ -25,6 +27,7 @@ import {
   password,
   timestamp,
   select,
+  checkbox,
   integer,
 } from '@keystone-6/core/fields';
 // The document field is a more complicated field, so it's in its own package
@@ -56,6 +59,17 @@ export const lists: Lists = {
       // The password field takes care of hiding details and hashing values
       password: password({ validation: { isRequired: true } }),
       answer: relationship({ ref: 'Answer.user', many: true }),
+      isAdmin: checkbox(),
+    },
+    access: {
+      operation: {
+        query: () => true,
+        create: () => true,
+        delete: ({ session }) => isUserAdmin(session),
+      },
+      filter: {
+        update: ({ session }) => !!isUsersItem(session),
+      },
     },
     // Here we can configure the Admin UI. We want to show a user's name and posts in the Admin UI
     ui: {
@@ -72,6 +86,14 @@ export const lists: Lists = {
       type: relationship({ ref: 'Type.question' }),
       answer: relationship({ ref: 'Answer.question', many: true }),
     },
+    access: {
+      operation: {
+        query: () => true,
+        create: ({ session }) => isUserAdmin(session),
+        update: ({ session }) => isUserAdmin(session),
+        delete: ({ session }) => isUserAdmin(session),
+      },
+    },
     ui: {
       labelField: 'question',
       listView: {
@@ -87,6 +109,14 @@ export const lists: Lists = {
       description: text({ ui: { displayMode: 'textarea' } }),
       question: relationship({ ref: 'Question.type', many: true }),
     },
+    access: {
+      operation: {
+        query: () => true,
+        create: ({ session }) => isUserAdmin(session),
+        update: ({ session }) => isUserAdmin(session),
+        delete: ({ session }) => isUserAdmin(session),
+      },
+    },
     ui: {
       labelField: 'type',
       listView: {
@@ -100,6 +130,16 @@ export const lists: Lists = {
       answer: integer({ validation: { isRequired: true } }),
       user: relationship({ ref: 'User.answer' }),
       question: relationship({ ref: 'Question.answer' }),
+    },
+    access: {
+      operation: {
+        query: ({ session }) => isLoggedIn(session),
+        create: ({ session }) => isLoggedIn(session),
+      },
+      filter: {
+        update: ({ session }) => !!isUsersItem(session),
+        delete: ({ session }) => !!isUsersItem(session),
+      },
     },
     ui: {
       labelField: 'answer',

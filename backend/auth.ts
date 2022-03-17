@@ -19,7 +19,7 @@ let sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret) {
   if (process.env.NODE_ENV === 'production') {
     throw new Error(
-      'The SESSION_SECRET environment variable must be set in production'
+      'The SESSION_SECRET environment variable must be set in production',
     );
   } else {
     sessionSecret = '-- DEV COOKIE SECRET; CHANGE ME --';
@@ -32,7 +32,7 @@ if (!sessionSecret) {
 const { withAuth } = createAuth({
   listKey: 'User',
   identityField: 'email',
-  sessionData: 'name',
+  sessionData: 'id name email isAdmin',
   secretField: 'password',
   initFirstItem: {
     // If there are no items in the database, keystone will ask you to create

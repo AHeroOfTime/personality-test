@@ -7,6 +7,7 @@ import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import { shuffle } from 'lodash';
 import { useRouter } from 'next/router';
 import { useUser } from '../hooks/User';
+import { Auth } from '../components/Auth';
 
 const QUESTION_QUERY = gql`
   query QUESTION_QUERY($id: ID) {
@@ -59,7 +60,7 @@ export default function Question() {
   );
 
   useEffect(() => {
-    if (user?.authenticatedItem.id) {
+    if (user?.authenticatedItem?.id) {
       getQuestions({
         variables: {
           id: user.authenticatedItem.id,
@@ -91,7 +92,7 @@ export default function Question() {
   }, [data]);
 
   const submitAnswer = (answer) => {
-    console.log(`submitting our answer ${answer}`);
+    // console.log(`submitting our answer ${answer}`);
     addAnswers({
       variables: {
         userId: user.authenticatedItem.id,
@@ -102,17 +103,19 @@ export default function Question() {
   };
 
   return (
-    <Page>
-      <div className="box">
-        <div className="content text-center">
-          <div className="font-display text-10xl leading-none -mt-28">
-            <Image src="/img/number-sign.svg" width={72} height={109} />
-            {questionNumber}
+    <Auth>
+      <Page>
+        <div className="box">
+          <div className="content text-center">
+            <div className="font-display text-10xl leading-none -mt-28">
+              <Image src="/img/number-sign.svg" width={72} height={109} />
+              {questionNumber}
+            </div>
+            <p>{questions && questions[curSpot].question}</p>
+            <Answers className="bottom-0 p-2" submitAnswer={submitAnswer} />
           </div>
-          <p>{questions && questions[curSpot].question}</p>
-          <Answers className="bottom-0 p-2" submitAnswer={submitAnswer} />
         </div>
-      </div>
-    </Page>
+      </Page>
+    </Auth>
   );
 }

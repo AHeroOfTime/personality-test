@@ -18,6 +18,12 @@ module.exports = {
         primary: '#E9C376',
         secondary: '#DFB8AC',
       },
+      fill: {
+        primary: '#E9C376',
+        silverChalice: '#ADADAD',
+        white: '#FFFFFF',
+        black: '#000000',
+      },
       fontSize: {
         '10xl': '10rem',
       },

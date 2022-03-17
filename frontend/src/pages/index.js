@@ -52,8 +52,8 @@ const Home = () => {
   // check to see if the user has an existing session and has already been authenticated
   // adding this here instead of onCompletion so that if the user comes, they can get where they need to go
   useEffect(() => {
-    console.log('checking the user');
-    console.log(user);
+    // console.log('checking the user');
+    // console.log(user);
 
     if (user?.authenticatedItem?.id) {
       // redirect to the directions page
@@ -66,7 +66,7 @@ const Home = () => {
     setSubmittingForm(true); // freeze our form while submitting
     await signupUser(data);
     setSubmittingForm(false); // reenable the form
-    console.log(data);
+    // console.log(data);
   };
 
   const [createUser] = useMutation(CREATE_USER_MUTATION);
@@ -101,9 +101,10 @@ const Home = () => {
           email: data.email,
           password: data.password,
         },
+        refetchQueries: [{ query: AUTHENTICATE_USER_QUERY }],
       });
 
-      console.log(loggedInUser.data);
+      // console.log(loggedInUser.data);
 
       const token = loggedInUser.data.authenticateUserWithPassword.sessionToken;
 
